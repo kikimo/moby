@@ -8,6 +8,10 @@ set -e
 
 install_containerd() (
 	echo "Install containerd version $CONTAINERD_COMMIT"
+	export http_proxy=socks5://192.168.199.204:1080
+	export https_proxy=socks5://192.168.199.204:1080
+        export GOPROXY=https://goproxy.cn
+
 	git clone https://github.com/containerd/containerd.git "$GOPATH/src/github.com/containerd/containerd"
 	cd "$GOPATH/src/github.com/containerd/containerd"
 	git checkout -q "$CONTAINERD_COMMIT"

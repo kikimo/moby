@@ -19,6 +19,7 @@ ENV GO111MODULE=off
 FROM base AS criu
 ARG DEBIAN_FRONTEND
 # Install dependency packages specific to criu
+RUN  sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list && apt-get clean
 RUN --mount=type=cache,sharing=locked,id=moby-criu-aptlib,target=/var/lib/apt \
     --mount=type=cache,sharing=locked,id=moby-criu-aptcache,target=/var/cache/apt \
         apt-get update && apt-get install -y --no-install-recommends \
@@ -33,6 +34,11 @@ RUN --mount=type=cache,sharing=locked,id=moby-criu-aptlib,target=/var/lib/apt \
 
 # Install CRIU for checkpoint/restore support
 ARG CRIU_VERSION=3.14
+
+ENV http_proxy socks5://192.168.199.204:1080
+ENV https_proxy socks5://192.168.199.204:1080
+ENV GOPROXY https://goproxy.cn
+
 RUN mkdir -p /usr/src/criu \
     && curl -sSL https://github.com/checkpoint-restore/criu/archive/v${CRIU_VERSION}.tar.gz | tar -C /usr/src/criu/ -xz --strip-components=1 \
     && cd /usr/src/criu \
@@ -49,6 +55,11 @@ WORKDIR /go/src/github.com/docker/distribution
 # skipped on that architecture.
 ENV REGISTRY_COMMIT_SCHEMA1 ec87e9b6971d831f0eff752ddb54fb64693e51cd
 ENV REGISTRY_COMMIT 47a064d4195a9b56133891bbb13620c3ac83a827
+
+ENV http_proxy socks5://192.168.199.204:1080
+ENV https_proxy socks5://192.168.199.204:1080
+ENV GOPROXY https://goproxy.cn
+
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=tmpfs,target=/go/src/ \
@@ -70,6 +81,11 @@ WORKDIR $GOPATH/src/github.com/go-swagger/go-swagger
 # Install go-swagger for validating swagger.yaml
 # This is https://github.com/kolyshkin/go-swagger/tree/golang-1.13-fix
 # TODO: move to under moby/ or fix upstream go-swagger to work for us.
+
+ENV http_proxy socks5://192.168.199.204:1080
+ENV https_proxy socks5://192.168.199.204:1080
+ENV GOPROXY https://goproxy.cn
+
 ENV GO_SWAGGER_COMMIT 5e6cb12f7c82ce78e45ba71fa6cb1928094db050
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
@@ -81,6 +97,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM base AS frozen-images
 ARG DEBIAN_FRONTEND
+RUN  sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list && apt-get clean
 RUN --mount=type=cache,sharing=locked,id=moby-frozen-images-aptlib,target=/var/lib/apt \
     --mount=type=cache,sharing=locked,id=moby-frozen-images-aptcache,target=/var/cache/apt \
        apt-get update && apt-get install -y --no-install-recommends \
@@ -100,6 +117,7 @@ FROM base AS cross-false
 
 FROM --platform=linux/amd64 base AS cross-true
 ARG DEBIAN_FRONTEND
+RUN  sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list && apt-get clean
 RUN dpkg --add-architecture arm64
 RUN dpkg --add-architecture armel
 RUN dpkg --add-architecture armhf
@@ -114,6 +132,7 @@ FROM cross-${CROSS} as dev-base
 
 FROM dev-base AS runtime-dev-cross-false
 ARG DEBIAN_FRONTEND
+RUN  sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list && apt-get clean
 RUN --mount=type=cache,sharing=locked,id=moby-cross-false-aptlib,target=/var/lib/apt \
     --mount=type=cache,sharing=locked,id=moby-cross-false-aptcache,target=/var/cache/apt \
         apt-get update && apt-get install -y --no-install-recommends \
@@ -132,6 +151,7 @@ ARG DEBIAN_FRONTEND
 # on non-amd64 systems.
 # Additionally, the crossbuild-amd64 is currently only on debian:buster, so
 # other architectures cannnot crossbuild amd64.
+RUN  sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list && apt-get clean
 RUN --mount=type=cache,sharing=locked,id=moby-cross-true-aptlib,target=/var/lib/apt \
     --mount=type=cache,sharing=locked,id=moby-cross-true-aptcache,target=/var/cache/apt \
         apt-get update && apt-get install -y --no-install-recommends \
@@ -160,6 +180,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM dev-base AS containerd
 ARG DEBIAN_FRONTEND
+RUN  sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list && apt-get clean
 RUN --mount=type=cache,sharing=locked,id=moby-containerd-aptlib,target=/var/lib/apt \
     --mount=type=cache,sharing=locked,id=moby-containerd-aptcache,target=/var/cache/apt \
         apt-get update && apt-get install -y --no-install-recommends \
@@ -217,6 +238,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM dev-base AS tini
 ARG DEBIAN_FRONTEND
 ARG TINI_COMMIT
+RUN  sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list && apt-get clean
 RUN --mount=type=cache,sharing=locked,id=moby-tini-aptlib,target=/var/lib/apt \
     --mount=type=cache,sharing=locked,id=moby-tini-aptcache,target=/var/cache/apt \
         apt-get update && apt-get install -y --no-install-recommends \
@@ -251,6 +273,7 @@ RUN ln -sfv /go/src/github.com/docker/docker/.bashrc ~/.bashrc
 RUN echo "source /usr/share/bash-completion/bash_completion" >> /etc/bash.bashrc
 RUN ln -s /usr/local/completion/bash/docker /etc/bash_completion.d/docker
 RUN ldconfig
+RUN  sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list && apt-get clean
 # This should only install packages that are specifically needed for the dev environment and nothing else
 # Do you really need to add another package here? Can it be done in a different build stage?
 RUN --mount=type=cache,sharing=locked,id=moby-dev-aptlib,target=/var/lib/apt \
@@ -287,7 +310,7 @@ RUN update-alternatives --set iptables  /usr/sbin/iptables-legacy  || true \
  && update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy || true \
  && update-alternatives --set arptables /usr/sbin/arptables-legacy || true
 
-RUN pip3 install yamllint==1.16.0
+RUN pip3 install -i https://pypi.doubanio.com/simple some-package yamllint==1.16.0
 
 COPY --from=dockercli     /build/ /usr/local/cli
 COPY --from=frozen-images /build/ /docker-frozen-images
@@ -315,6 +338,12 @@ VOLUME /home/unprivilegeduser/.local/share/docker
 ENTRYPOINT ["hack/dind"]
 
 FROM dev-systemd-false AS dev-systemd-true
+
+ENV http_proxy socks5://192.168.199.204:1080
+ENV https_proxy socks5://192.168.199.204:1080
+ENV GOPROXY https://goproxy.cn
+RUN  sed -i s@/deb.debian.org/@/mirrors.aliyun.com/@g /etc/apt/sources.list && apt-get clean
+
 RUN --mount=type=cache,sharing=locked,id=moby-dev-aptlib,target=/var/lib/apt \
     --mount=type=cache,sharing=locked,id=moby-dev-aptcache,target=/var/cache/apt \
         apt-get update && apt-get install -y --no-install-recommends \

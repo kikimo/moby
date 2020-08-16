@@ -7,6 +7,9 @@ set -eo pipefail
 # debian                           latest              f6fab3b798be        10 weeks ago        85.1 MB
 # debian                           latest              f6fab3b798be3174f45aa1eb731f8182705555f89c9026d8c1ef230cbf8301dd   10 weeks ago        85.1 MB
 
+export http_proxy=socks5://192.168.199.204:1080
+export https_proxy=socks5://192.168.199.204:1080
+
 # check if essential commands are in our PATH
 for cmd in curl jq go; do
 	if ! command -v $cmd &> /dev/null; then

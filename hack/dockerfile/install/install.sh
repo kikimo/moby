@@ -35,5 +35,9 @@ if [ ! -f "${dir}/${bin}.installer" ]; then
 	exit 1
 fi
 
+export http_proxy=socks5://192.168.199.204:1080
+export https_proxy=socks5://192.168.199.204:1080
+export GOPROXY=https://goproxy.cn
+
 . ${dir}/${bin}.installer
 install_${bin} "$@"
