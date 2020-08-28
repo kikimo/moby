@@ -8,6 +8,9 @@ install_golangci_lint() {
 	export https_proxy=socks5://192.168.199.204:1080
     export GOPROXY=https://goproxy.cn
 
+    git config --global http.proxy socks5://192.168.199.204:1080
+    # git config https.proxy socks5://192.168.192.204:1080
+
 	go get -d github.com/golangci/golangci-lint/cmd/golangci-lint
 	cd "$GOPATH/src/github.com/golangci/golangci-lint/" || exit 1
 	git checkout -q "${GOLANGCI_LINT_COMMIT}"
